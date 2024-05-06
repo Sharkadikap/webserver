@@ -1,0 +1,85 @@
+# Prerequisite
+# Set up RDS for MySQL
+# Instance must be public facing (Can access internet)
+
+# Install Nginx
+sudo yum update -y
+sudo amazon-linux-extras install nginx1 -y
+sudo yum install nginx -y
+sudo systemctl start nginx
+sudo systemctl enable nginx
+sudo systemctl status nginx
+
+# Install php8.0 (Wordpress can only run on php8.0)
+Enable & Install the EPEL Repository (Extra Packages for Enterprise Linux)
+sudo amazon-linux-extras install epel -y
+sudo amazon-linux-extras enable php8.0
+yum install php-cli php-pdo php-fpm php-mysqlnd
+sudo systemctl start php-fpm
+sudo systemctl enable php-fpm
+sudo systemctl status php-fpm
+
+# Check the php version
+php-fpm -v
+
+# Intall php-mysqli
+sudo yum install php-mysqli
+
+# Install MariaDB(MySQL)
+sudo yum install mariadb-server -y
+sudo systemctl start mariadb
+sudo systemctl enable mariadb
+sudo systemctl status mariadb
+
+# Install Wordpress
+Download and Extract Wordpress
+cd /usr/share/nginx/html
+sudo curl -O https://wordpress.org/latest.tar.gz
+sudo tar -zxvf latest.tar.gz
+
+# Create MySQL Database and User for WordPress
+sudo mysql -u root -p
+CREATE DATABASE wordpress;
+CREATE USER 'root' IDENTIFIED BY 'capstone3';
+GRANT ALL PRIVILEGES ON wordpress.* TO 'root';
+FLUSH PRIVILEGES;
+EXIT;
+
+# Configure Wordpress
+sudo mv wordpress/* . # (moves wordpress to current folder)
+sudo cp wp-config-sample.php wp-config.php
+Edit wp-config.php file # (Update the database settings with the MySQL database name, username, and password you created earlier.)
+sudo nano wp-config.php
+# DB_HOST get from RDS endpoint
+
+# Give nginx ownership of the file
+sudo chown -R nginx:nginx /usr/share/nginx/html
+sudo chmod -R 755 /usr/share/nginx/html
+
+# Create Nginx Server Block Configuration
+sudo nano /etc/nginx/conf.d/wordpress.conf
+server {
+    listen 80;
+
+    root /usr/share/nginx/html;
+    index index.php index.html index.htm;
+
+    location / {
+        try_files $uri $uri/ /index.php?$args;
+    }
+
+    location ~ \.php$ {
+        include fastcgi_params;
+        fastcgi_pass unix:/var/run/php-fpm/www.sock;
+        fastcgi_index index.php;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+    }
+
+    location ~ /\.ht {
+        deny all;
+    }
+}
+sudo systemctl restart nginx
+
+# Make sure on web browser is http not https
+# Run public IP on browser
