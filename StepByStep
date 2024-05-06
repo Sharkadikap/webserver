@@ -10,8 +10,8 @@ sudo systemctl start nginx
 sudo systemctl enable nginx
 sudo systemctl status nginx
 
-# Install php8.0 (Wordpress can only run on php8.0)
-Enable & Install the EPEL Repository (Extra Packages for Enterprise Linux)
+# Install php8.0 (Wordpress can only run on php version 7.0 and above)
+# Enable & Install the EPEL Repository (Extra Packages for Enterprise Linux)
 sudo amazon-linux-extras install epel -y
 sudo amazon-linux-extras enable php8.0
 yum install php-cli php-pdo php-fpm php-mysqlnd
@@ -40,8 +40,8 @@ sudo tar -zxvf latest.tar.gz
 # Create MySQL Database and User for WordPress
 sudo mysql -u root -p
 CREATE DATABASE wordpress;
-CREATE USER 'root' IDENTIFIED BY 'capstone3';
-GRANT ALL PRIVILEGES ON wordpress.* TO 'root';
+CREATE USER 'username' IDENTIFIED BY 'password';
+GRANT ALL PRIVILEGES ON wordpress.* TO 'username';
 FLUSH PRIVILEGES;
 EXIT;
 
