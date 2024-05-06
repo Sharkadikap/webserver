@@ -22,7 +22,7 @@ sudo systemctl status php-fpm
 # Check the php version
 php-fpm -v
 
-# Intall php-mysqli
+# Install php-mysqli
 sudo yum install php-mysqli
 
 # Install MariaDB(MySQL)
